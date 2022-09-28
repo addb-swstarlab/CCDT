@@ -8,7 +8,7 @@ import numpy as np
 from sklearn.metrics import r2_score
 from network import SingleNet
 #from model.utils import get_filename
-# from pytorchtools import EarlyStopping
+
 
 class NeuralModel():
     def __init__(self, mode, batch_size, lr, epochs, input_dim, hidden_dim, 
