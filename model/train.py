@@ -2,13 +2,15 @@ import pandas as pd
 import numpy as np
 import glob
 import torch
+from MLP import NeuralModel
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from scipy.stats import pearsonr
 #from lifelines.utils import concordance_index
 from sklearn.metrics import mean_squared_error 
 
-def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, group_dim):
+def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
 # # def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, group_dim, Q_NUM, dot, EX_NUM=4, lamb=0.1):
 
     df_pred = pd.DataFrame(columns=("METRIC", "r2",  "MSE"))
@@ -27,10 +29,10 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, gr
     one_hot = pd.get_dummies(clus, columns=['cluster'])
 
     X = dir_list #config 파일
-    print(X)
+    #print(X)
 
     Y = one_hot #one-hot vector 값
-    print(Y)
+    #print(Y)
 
   
 
@@ -38,8 +40,11 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, gr
       
 
     # TODO: scale
+    print(X_tr)
+    # quit()
     scaler_X = MinMaxScaler().fit(X_tr)
     scaler_y = StandardScaler().fit(y_tr) #scale 값
+
     #적용
     norm_X_tr = torch.Tensor(scaler_X.transform(X_tr)).cuda()
     norm_X_te = torch.Tensor(scaler_X.transform(X_te)).cuda()
@@ -60,18 +65,12 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, gr
     pred = outputs.cpu().detach().numpy().squeeze()
 #성능계산
     r2_res = r2_score(true, pred)
-
-    pcc_res, _ = pearsonr(true, pred)
-    ci_res = concordance_index(true, pred)
-
     MSE_res = mean_squared_error(true, pred)
 
     cnt += 1
     # print(f"-------{cnt}-------")
     print(f"--------results-------")
     print(f"r2  score = {r2_res:.4f}")
-    print(f"pcc score = {pcc_res:.4f}")
-    print(f"ci  score = {ci_res:.4f}")
     print(f"MSE score = {MSE_res:.4f}")
 
 #    #k-fold 없어도 됨
@@ -85,8 +84,6 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, gr
     
     print(f"-------Mean of results-------")
     print(f"r2  is {k_r2/cnt}")
-    print(f"pcc is {k_pcc/cnt}")
-    print(f"ci  is {k_ci/cnt}")
     print(f"MSE is {MSE_res/cnt}")
     
     # score = [ (METRIC, k_r2/cnt, k_pcc/cnt, k_ci/cnt, MSE_res/cnt) ]
