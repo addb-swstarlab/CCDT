@@ -18,15 +18,14 @@ class NeuralModel():
         self.lr = lr                    # learning rate
         self.epochs = epochs
 
-        # add logger
-       # self.logger = logger
+        add logger
+        self.logger = logger
                 
         if self.mode == 'single':
             self.model = SingleNet(input_dim=input_dim, hidden_dim=hidden_dim, 
                                    output_dim=output_dim).cuda()  #어텐션에서 사용x
-        # elif self.mode == 'reshape':
-        #     self.model = ReshapeNet(input_dim=input_dim, hidden_dim=hidden_dim, 
-        #                             output_dim=output_dim, group_dim=group_dim, wk_num=wk_num).cuda()
+        
+
     #fit 
     def forward(self, X, y):
         self.fit(X, y)
@@ -41,8 +40,8 @@ class NeuralModel():
         dataloader_tr = DataLoader(dataset_tr, batch_size=self.batch_size, shuffle=True)
         dataloader_te = DataLoader(dataset_te, batch_size=self.batch_size, shuffle=True)        
         best_loss = np.inf #loss 무한대로 선언. 줄여가려고
-        # self.logger.info(f"[Train MODE] Training Model") 
-        # name = get_filename('model_save', 'model', '.pt')
+        self.logger.info(f"[Train MODE] Training Model") 
+        name = get_filename('model_save', 'model', '.pt')
 
 
         for epoch in range(self.epochs): #여러개의 iteration이 끝나면 epoch 1번 완료
@@ -63,7 +62,7 @@ class NeuralModel():
                 self.best_outputs = te_outputs
                 self.best_epoch = epoch
                 torch.save(self.best_model, os.path.join('model_save', name))   # save best model의 parameter 파일로 저장
-        # self.logger.info(f"best loss is {best_loss:.4f} in [{self.best_epoch}/{self.epochs}]epoch, save model to {os.path.join('model_save', name)}")                
+        self.logger.info(f"best loss is {best_loss:.4f} in [{self.best_epoch}/{self.epochs}]epoch, save model to {os.path.join('model_save', name)}")                
         print(f"best loss is {best_loss:.4f} in [{self.best_epoch}/{self.epochs}]epoch")
 
         return self.best_outputs
