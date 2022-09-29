@@ -7,18 +7,18 @@ from torch.utils.data import TensorDataset, DataLoader
 import numpy as np
 from sklearn.metrics import r2_score
 from network import SingleNet
-#from model.utils import get_filename
+from utils import get_filename
 
 
 class NeuralModel():
-    def __init__(self, mode, batch_size, lr, epochs, input_dim, hidden_dim, 
+    def __init__(self, logger, mode, batch_size, lr, epochs, input_dim, hidden_dim, 
                  output_dim):
         self.mode = mode
         self.batch_size = batch_size
         self.lr = lr                    # learning rate
         self.epochs = epochs
 
-        add logger
+        #add logger
         self.logger = logger
                 
         if self.mode == 'single':
@@ -46,7 +46,7 @@ class NeuralModel():
 
         for epoch in range(self.epochs): #여러개의 iteration이 끝나면 epoch 1번 완료
             loss_tr, dot_loss_tr, _ = self.train(self.model, dataloader_tr)
-            loss_te, dot_loss_te, te_outputs, r2_res = self.valid(self.model, dataloader_te) #validation loss랑 train 했을 때 loss 볼 수 있게
+            loss_te, te_outputs, r2_res = self.valid(self.model, dataloader_te) #validation loss랑 train 했을 때 loss 볼 수 있게
 
             #time = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
             # if self.dot:
@@ -110,8 +110,7 @@ class NeuralModel():
             ## Logging
             total_loss += loss.item()
             outputs = torch.cat((outputs, output)) #outputs랑 output 합치기
-        total_loss /= len(train_loader) #loss 평균값구하기      len(train_loader) 가 iteration 갯수, 
-      #  total_dot_loss /= len(train_loader)
+        total_loss /= len(train_loader) #loss 평균값구하기///len(train_loader) 가 iteration 갯수, 
 
         return total_loss, total_dot_loss, outputs 
 
