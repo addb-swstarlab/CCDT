@@ -25,11 +25,13 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
 
 
     dir_list = glob.glob('../data/A-1/configs/A-1/*.cnf')
+    print(dir_list)
     clus=pd.read_csv("../data/clustering2.csv")
     one_hot = pd.get_dummies(clus, columns=['cluster'])
 
     X = dir_list #config 파일
-    #print(X)
+    # print(X)
+    # quit()
 
     Y = one_hot #one-hot vector 값
     #print(Y)
@@ -41,7 +43,7 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
 
     # TODO: scale
     print(X_tr)
-    # quit()
+    quit()
     scaler_X = MinMaxScaler().fit(X_tr)
     scaler_y = StandardScaler().fit(y_tr) #scale 값
 
