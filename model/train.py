@@ -7,29 +7,34 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from scipy.stats import pearsonr
+from cluster import make_data
 #from lifelines.utils import concordance_index
 from sklearn.metrics import mean_squared_error 
+
 
 def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
 # # def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, group_dim, Q_NUM, dot, EX_NUM=4, lamb=0.1):
 
     df_pred = pd.DataFrame(columns=("METRIC", "r2",  "MSE"))
 
-    # k_r2 = 0
-    # k_pcc = 0
-    # k_ci = 0
-    # k_MSE = 0
-    # cnt = 0
+    k_r2 = 0
+    k_MSE = 0
+    cnt = 0
 
 
 
 
-    dir_list = glob.glob('../data/A-1/configs/A-1/*.cnf')
-    print(dir_list)
+    # dir_list = glob.glob('../data/A-1/configs/A-1/*.cnf')
+    
     clus=pd.read_csv("../data/clustering2.csv")
+    # rfin_array = np.array(fin_list).astype(float)
+    # input_data = torch.tensor(rfin_array)
+
     one_hot = pd.get_dummies(clus, columns=['cluster'])
 
-    X = dir_list #config 파일
+    input_data = data
+
+    X = input_data #config 파일
     # print(X)
     # quit()
 
@@ -42,8 +47,8 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
       
 
     # TODO: scale
-    print(X_tr)
-    quit()
+    # print(X_tr)
+    # quit()
     scaler_X = MinMaxScaler().fit(X_tr)
     scaler_y = StandardScaler().fit(y_tr) #scale 값
 
@@ -56,8 +61,8 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
 
 # train 시작
     model = NeuralModel(logger, mode=MODE, batch_size=batch_size, lr=lr, epochs=epochs, 
-                            input_dim=norm_X_tr.shape[-1], hidden_dim=hidden_dim, output_dim=norm_y_tr.shape[-1],
-                            group_dim=group_dim)
+                            input_dim=norm_X_tr.shape[-1], hidden_dim=hidden_dim, output_dim=norm_y_tr.shape[-1]
+                            )
     X = (norm_X_tr, norm_X_te)
     y = (norm_y_tr, norm_y_te)
     model.fit(X, y) #훈련
@@ -94,4 +99,4 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
     # ex = pd.DataFrame(score, columns=["METRIC", "r2", 'pcc', "ci", "MSE"])
     # df_pred = pd.concat(([df_pred, ex]), ignore_index=True )
     # # return k_r2/cnt, k_pcc/cnt, k_ci/cnt, MSE_res/cnt, true, pred, df_pred
-    # return r2_res/cnt, pcc_res/cnt, ci_res/cnt, MSE_res/cnt, true, pred, df_pred
+    return r2_res/cnt, MSE_res/cnt, true, pred, df_pred
