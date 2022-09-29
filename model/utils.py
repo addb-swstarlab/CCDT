@@ -38,4 +38,3 @@ def get_logger(log_path='./logs'):
     logger.info('Writing logs at {}'.format(os.path.join(log_path, name)))
     return logger, os.path.join(log_path, name)
 
-def 
