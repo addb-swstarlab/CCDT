@@ -8,7 +8,7 @@ from torch.utils.data import TensorDataset, DataLoader
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import glob
 from cluster import make_data
-#import natsort  # 숫자 정렬용 라이브러
+
 
 os.system('clear')
 
@@ -39,37 +39,35 @@ for i in vars(opt):
 
 
 
-# MODE = 'reshape'
-# batch_size = 64
-# lr = 0.01
-# epochs = 30
-
-# group_dim = 8
-
-
-
 def main():
 
    
     # input_data = make_data('A-1/configs/A-1/*.cnf')
     input_data = make_data('../data/A-1/configs/A-1/*.cnf')
-
-# dir = 
-
-    
+    # print(input_data)
+    # assert False
     # clus=pd.read_csv("../data/clustering2.csv")
     # one_hot = pd.get_dummies(clus, columns=['cluster'])
     if opt.train:
-        r2, MSE, true, pred, df_pred = train_Net(logger, data=input_data, METRIC=opt.external, MODE=opt.mode, 
+        # accuracy, true, pred, df_pred = train_Net(logger, data=input_data, METRIC=opt.external, MODE=opt.mode, 
+        #                                                batch_size=opt.batch_size, lr=opt.lr, epochs=opt.epochs, 
+        #                                                 hidden_dim=opt.hidden_size) 
+
+        # true, pred, df_pred = train_Net(logger, data=input_data, METRIC=opt.external, 
+        #                                                 n_estimators=opt.n_estimators, lr=opt.lr, max_depth=opt.max_depth, 
+        #                                                  random_state=opt.random_state) 
+
+        true, pred, df_pred = train_Net(logger, data=input_data, METRIC=opt.external, MODE=opt.mode, 
                                                         batch_size=opt.batch_size, lr=opt.lr, epochs=opt.epochs, 
                                                          hidden_dim=opt.hidden_size) 
-
-        logger.info(f'\npred = \n{pred[:5]}, {np.exp(pred[:5])}')
-        logger.info(f'\ntrue = \n{true[:5]}, {np.exp(true[:5])}')
-        logger.info(f'\naccuracy(mean_squared_error) = {mean_squared_error(true, pred)}\naccuracy(mean_absolute_error) = {mean_absolute_error(true, pred)}')
+        logger.info(f'\npred = \n{pred[:5]}')
+        #, {np.exp(pred[:5])}
+        logger.info(f'\ntrue = \n{true[:5]}')
+        #{np.exp(true[:5])}
+        #logger.info(f'\naccuracy(mean_squared_error) = {mean_squared_error(true, pred)}\naccuracy(mean_absolute_error) = {mean_absolute_error(true, pred)}')
         logger.info(f'\nMetric : {opt.external}')
-        logger.info(f'  (r2 score) = {r2:.4f}')
-        logger.info(f'  (MSE score) = {MSE:.4f}')
+        # logger.info(f'  (r2 score) = {r2:.4f}')
+        # logger.info(f'  (MSE score) = {MSE:.4f}')
 
             
     elif opt.eval:

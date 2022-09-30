@@ -15,7 +15,9 @@ dir = '../data/A-1/configs/A-1/*.cnf'
 def make_data(directory):
     properties = configparser.ConfigParser()
     # sys.path.append('home/sein/ksc_model/data/A-1/configs/A-1')
-    dir_list = glob.glob(directory)
+    dir_list = sorted(glob.glob(directory))
+    #dir_list = glob.glob(directory)
+
     #mysqld = properties["mysqld"]
     k = 0
     # print(properties['mysqld'])

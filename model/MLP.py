@@ -1,5 +1,6 @@
 import os
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
@@ -8,6 +9,24 @@ import numpy as np
 from sklearn.metrics import r2_score
 from network import SingleNet
 from utils import get_filename
+from xgboost import XGBClassifier
+
+
+# class NeuralModel():
+#     def __init__(self, logger, n_estimators, lr, max_depth, random_state):
+#         self.n_estimators = n_estimators
+#         self.lr = lr
+#         self.max_depth = max_depth                    # learning rate
+#         self.random_state = random_state
+
+#         #add logger
+#         self.logger = logger
+#         if self.mode == 'single':
+#             self.model = SingleNet(n_estimators=opt.n_estimators, lr=opt.lr, max_depth=opt.max_depth, 
+#                                     random_state=opt.random_state).cuda()         
+        # if self.mode == 'single':
+        #     self.model = SingleNet(input_dim=input_dim, hidden_dim=hidden_dim, 
+        #                            output_dim=output_dim).cuda()  
 
 
 class NeuralModel():
@@ -23,7 +42,7 @@ class NeuralModel():
                 
         if self.mode == 'single':
             self.model = SingleNet(input_dim=input_dim, hidden_dim=hidden_dim, 
-                                   output_dim=output_dim).cuda()  #어텐션에서 사용x
+                                   output_dim=output_dim).cuda()  
         
 
     #fit 
@@ -33,6 +52,7 @@ class NeuralModel():
     def fit(self, X, y):
         self.X_tr, self.X_te = X
         self.y_tr, self.y_te = y
+
         #dataset 만들기
         dataset_tr = TensorDataset(self.X_tr, self.y_tr)
         dataset_te = TensorDataset(self.X_te, self.y_te)
@@ -48,13 +68,6 @@ class NeuralModel():
             loss_tr, dot_loss_tr, _ = self.train(self.model, dataloader_tr)
             loss_te, te_outputs, r2_res = self.valid(self.model, dataloader_te) #validation loss랑 train 했을 때 loss 볼 수 있게
 
-            #time = datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
-            # if self.dot:
-            #     # print(f"{time}[{epoch:02d}/{self.epochs}] loss_tr: {loss_tr:.8f}\tloss_te:{loss_te:.8f} \tdot loss_tr: {dot_loss_tr:.8f}\tdot loss_te:{dot_loss_te:.8f}")
-            #     self.logger.info(f"[{epoch:02d}/{self.epochs}] loss_tr: {loss_tr:.8f}\tloss_te:{loss_te:.8f} \tdot loss_tr: {dot_loss_tr:.8f}\tdot loss_te:{dot_loss_te:.8f}\t r2:{r2_res:.4f}")
-            # else:
-            #     # print(f"{time}[{epoch:02d}/{self.epochs}] loss_tr: {loss_tr:.8f}\tloss_te:{loss_te:.8f}")
-            #     self.logger.info(f"[{epoch:02d}/{self.epochs}] loss_tr: {loss_tr:.8f}\tloss_te:{loss_te:.8f}\t r2:{r2_res:.4f}")
             
             if best_loss > loss_te:
                 best_loss = loss_te
@@ -80,27 +93,11 @@ class NeuralModel():
 
         for data, target in train_loader:   #데이터 x 타겟 y
             optimizer.zero_grad() #그라디언트 0으로 초기화
-            ## predict
-            # if self.mode == 'reshape':
-            #     output = model(data) # output.shape = (batch_size, 1)
-
-            #     if self.dot:    
-            #         ## dot
-            #         dot = torch.bmm(model.res_x, model.res_x.transpose(1,2))    # bmm : batch matrix multiplication --> [B, n, m] x [B, m, p] = [B, n, p]
-
-            #         dot_loss = F.mse_loss(dot, torch.eye(dot.size(1)).repeat(data.shape[0], 1, 1).cuda())
-            #         ## loss
-            #         loss = (1-self.lamb)*F.mse_loss(output, target) + self.lamb*dot_loss
-            #         total_dot_loss += dot_loss.item()
-            #     else:
-            #         loss = F.mse_loss(output, target)
-            # elif self.mode == 'single':
-            #     output = model(data)
-            #     loss = F.mse_loss(output, target)
-            
-            #  self.mode == 'single':
+        
+        
             output = model(data)
-            loss = F.mse_loss(output, target)
+            criterion = nn.CrossEntropyLoss()
+            loss = criterion(output, target)
             
 
 
@@ -124,24 +121,11 @@ class NeuralModel():
         r2_res = 0
         with torch.no_grad():
             for data, target in valid_loader:
-                # if self.mode == 'reshape':
-                #     output = model(data)
-                    
-                #     if self.dot:
-                #         ## dot
-                #         dot = torch.bmm(model.res_x, model.res_x.transpose(1,2))
-                #         dot_loss = F.mse_loss(dot, torch.eye(dot.size(1)).repeat(data.shape[0], 1, 1).cuda())
-                #         loss = (1-self.lamb)*F.mse_loss(output, target) + self.lamb*dot_loss # mean squared error
-                #         total_dot_loss += dot_loss.item()
-                #     else:
-                #         loss = F.mse_loss(output, target)
-                # elif self.mode == 'single':
-                #     output = model(data)
-                #     loss = F.mse_loss(output, target)
-                    
-                #  self.mode == 'single':
+             
                 output = model(data)
-                loss = F.mse_loss(output, target)
+                
+                criterion = nn.CrossEntropyLoss()
+                loss = criterion(output, target)
 
                 true = target.cpu().detach().numpy().squeeze()
                 pred = output.cpu().detach().numpy().squeeze()            
