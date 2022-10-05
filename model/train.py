@@ -3,7 +3,7 @@ import numpy as np
 import glob
 import torch
 from MLP import NeuralModel
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, RobustScaler
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score
 from scipy.stats import pearsonr
@@ -12,12 +12,13 @@ from sklearn.metrics import log_loss
 
 
 
+
 def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
 # # def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim, group_dim, Q_NUM, dot, EX_NUM=4, lamb=0.1):
 
-    df_pred = pd.DataFrame(columns=("METRIC", "r2",  "MSE"))
+    df_pred = pd.DataFrame(columns=("METRIC", "Accuracy",  "Logloss"))
 
-    k_r2 = 0
+    #k_r2 = 0
     # k_MSE = 0
     cnt = 0
 
@@ -29,23 +30,27 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
     clus=pd.read_csv("../data/clustering2.csv")
     # rfin_array = np.array(fin_list).astype(float)
     # input_data = torch.tensor(rfin_array)
+   
 
     one_hot = pd.get_dummies(clus, columns=['cluster'])
-
+    # print(one_hot)
     input_data = data
+    
+
 
     X = input_data #config 파일
     # print(X)
     # quit()
-
+    
     Y = one_hot #one-hot vector 값
   
     Y = Y.iloc[:,3:]
-    
+    # print(Y)
+
 
   
 
-    X_tr, X_te, y_tr, y_te = train_test_split(X, Y, test_size=0.2, shuffle=False) #train set, test set 나누기
+    X_tr, X_te, y_tr, y_te = train_test_split(X, Y, test_size=0.2, shuffle=True) #train set, test set 나누기
       
     #X_tr, X_te, y_tr, y_te = train_test_split(X, Y, test_size=0.2, shuffle=True, random_state=1004) #train set, test set 나누기
 
@@ -53,11 +58,15 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
     # print(X_tr)
     # quit()
     scaler_X = MinMaxScaler().fit(X_tr)
+#    [ print(X_tr)
+#     quit()]
     # scaler_y = StandardScaler().fit(y_tr) #scale 값
 
     #적용
     norm_X_tr = torch.Tensor(scaler_X.transform(X_tr)).cuda()
     norm_X_te = torch.Tensor(scaler_X.transform(X_te)).cuda()
+    # print(norm_X_tr[:5])
+    # quit()
     # print(y_tr.shape)
     # quit()
     y_tr = y_tr.to_numpy()
@@ -74,33 +83,40 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
     # model = NeuralModel(logger, n_estimators = n_estimators, lr=lr, max_depth = max_depth, random_state = random_state
     #                         )
     model = NeuralModel(logger, mode =MODE, batch_size=batch_size, lr=lr, epochs=epochs, 
-                            input_dim=norm_X_tr.shape[-1], hidden_dim=hidden_dim, output_dim=y_tr.shape[-1]
+                            input_dim=norm_X_tr.shape[-1], hidden_dim=hidden_dim, output_dim=4
                             )
     X = (norm_X_tr, norm_X_te)
     y = (y_tr, y_te)
     model.fit(X, y) #훈련
+    # print(y)
+    # quit()
     outputs = model.predict(norm_X_te) #norm x_te에 대한 모델의 예측값 pred_y_te
-
+   
     # true = y_te.cpu().detach().numpy().squeeze() # (,3) [[1,2,3]] --> [1,2,3] #텐서-gpu에서 cpu로
     # pred = outputs.cpu().detach().numpy().squeeze()
     true = y_te # (,3) [[1,2,3]] --> [1,2,3] #텐서-gpu에서 cpu로
     pred = outputs
+   
+
 #성능계산 
     pred_2 = pred.detach().cpu().numpy()
     true_2 = true.detach().cpu().numpy()
     # print(pred_2.shape , true_2.shape)
     logloss = log_loss(true_2,pred_2)
-    # Ex)  pred : [0.7, 0.2, 0.1]    
-    pred = torch.argmax(pred, 1)   # pred 
+    # Ex)  pred : [0.7, 0.2, 0.1]
+        
+    # pred = torch.argmax(pred, 1)   # pred 
     # Ex)  pred : [0]
-    
+    # print(pred)
     
     # Ex)  true : [1, 0, 0]
-    true = torch.argmax(true, 1) 
+    # true = torch.argmax(true, 1) 
     # Ex)  true : [0]
     
+    pred_ = torch.argmax(pred, 1)
+    true_ = torch.argmax(true, 1)
     # pred == true (??)   >>   [0] == [0]  >> True 
-    correct_pred = pred == true
+    correct_pred = pred_ == true_
     # correct_pred = [True, False, True,True, False, True,True, False, True,True, False, True,True, False, True]
     # correct_pred.shape : [batch_size]
 
@@ -128,4 +144,4 @@ def train_Net(logger, data, METRIC, MODE, batch_size, lr, epochs, hidden_dim):
     # # print(f"r2  is {k_r2/cnt}")
     # print(f"Accuracy is {MSE_res/cnt}")
     
-    return  true, pred, df_pred
+    return  true_, pred_, df_pred

@@ -19,7 +19,7 @@ parser.add_argument('--hidden_size', type=int, default=16, help='Define model hi
 parser.add_argument('--lr', type=float, default=0.01, help='Define learning rate')  
 parser.add_argument('--act_function', type=str, default='Sigmoid', help='choose which model be used on fitness function')   
 parser.add_argument('--epochs', type=int, default=30, help='Define train epochs')   
-parser.add_argument('--batch_size', type=int, default=64, help='Define model batch size')
+parser.add_argument('--batch_size', type=int, default=32, help='Define model batch size')
 parser.add_argument('--train', action='store_true', help='if trigger, model goes triain mode')
 parser.add_argument('--eval', action='store_true', help='if trigger, model goes eval mode')
 
@@ -60,9 +60,9 @@ def main():
         true, pred, df_pred = train_Net(logger, data=input_data, METRIC=opt.external, MODE=opt.mode, 
                                                         batch_size=opt.batch_size, lr=opt.lr, epochs=opt.epochs, 
                                                          hidden_dim=opt.hidden_size) 
-        logger.info(f'\npred = \n{pred[:5]}')
+        logger.info(f'\npred = \n{pred[:]}')
         #, {np.exp(pred[:5])}
-        logger.info(f'\ntrue = \n{true[:5]}')
+        logger.info(f'\ntrue = \n{true[:]}')
         #{np.exp(true[:5])}
         #logger.info(f'\naccuracy(mean_squared_error) = {mean_squared_error(true, pred)}\naccuracy(mean_absolute_error) = {mean_absolute_error(true, pred)}')
         logger.info(f'\nMetric : {opt.external}')

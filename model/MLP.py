@@ -9,7 +9,7 @@ import numpy as np
 from sklearn.metrics import r2_score
 from network import SingleNet
 from utils import get_filename
-from xgboost import XGBClassifier
+# from xgboost import XGBClassifier
 
 
 # class NeuralModel():
@@ -65,8 +65,9 @@ class NeuralModel():
 
 
         for epoch in range(self.epochs): #여러개의 iteration이 끝나면 epoch 1번 완료
-            loss_tr, dot_loss_tr, _ = self.train(self.model, dataloader_tr)
-            loss_te, te_outputs, r2_res = self.valid(self.model, dataloader_te) #validation loss랑 train 했을 때 loss 볼 수 있게
+            loss_tr,_ = self.train(self.model, dataloader_tr)
+            if epoch % 10 == 0: 
+                loss_te, te_outputs = self.valid(self.model, dataloader_te) #validation loss랑 train 했을 때 loss 볼 수 있게
 
             
             if best_loss > loss_te:
@@ -88,9 +89,10 @@ class NeuralModel():
         model.train()
 
         total_loss = 0.
-        total_dot_loss = 0.
+        
         outputs = torch.Tensor().cuda()
 
+        
         for data, target in train_loader:   #데이터 x 타겟 y
             optimizer.zero_grad() #그라디언트 0으로 초기화
         
@@ -99,8 +101,6 @@ class NeuralModel():
             criterion = nn.CrossEntropyLoss()
             loss = criterion(output, target)
             
-
-
             ## backpropagation
             loss.backward()
             optimizer.step()
@@ -109,16 +109,16 @@ class NeuralModel():
             outputs = torch.cat((outputs, output)) #outputs랑 output 합치기
         total_loss /= len(train_loader) #loss 평균값구하기///len(train_loader) 가 iteration 갯수, 
 
-        return total_loss, total_dot_loss, outputs 
+        return total_loss,  outputs 
 
     def valid(self, model, valid_loader): #한 epoch가 끝날 때마다 train이 제대로 되었는지 확인하기 위해서
         model.eval()
 
         ## Valid start    
         total_loss = 0.
-        total_dot_loss = 0.
+        
         outputs = torch.Tensor().cuda()
-        r2_res = 0
+        # r2_res = 0
         with torch.no_grad():
             for data, target in valid_loader:
              
@@ -129,11 +129,14 @@ class NeuralModel():
 
                 true = target.cpu().detach().numpy().squeeze()
                 pred = output.cpu().detach().numpy().squeeze()            
-                r2_res += r2_score(true, pred) #실제값과 예측값에 대한 r2 계산
+                # Accuracy_2 += accuracy(true,pred)
+                # r2_res += r2_score(true, pred) #실제값과 예측값에 대한 r2 계산
                 total_loss += loss.item()
                 outputs = torch.cat((outputs, output))
         total_loss /= len(valid_loader) #len(-) = iteration 횟수
         #total_dot_loss /= len(valid_loader)
-        r2_res /= len(valid_loader)
-
-        return total_loss, outputs, r2_res
+        # Accuracy_2 /= len(valid_loader)
+        # r2_res /= len(valid_loader)
+        print(total_loss)
+        # print(Accuracy_2)
+        return total_loss, outputs
