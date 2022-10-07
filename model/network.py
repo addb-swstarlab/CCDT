@@ -21,7 +21,7 @@ class SingleNet(nn.Module):
         self.input_dim = 20 # 22
         self.hidden_dim = 128
         self.hidden_dim2 = 256
-        self.hidden_dim3 = 128
+        # self.hidden_dim3 = 128
         self.output_dim = 4 # 64
     
         # self.weight = nn.parameter (torch.FloatTensor(7,32,32, device="cuda"))
@@ -29,8 +29,8 @@ class SingleNet(nn.Module):
         
         self.Layer1 = nn.Sequential(nn.BatchNorm1d(self.input_dim),nn.Linear(self.input_dim, self.hidden_dim), nn.ReLU())  #hidden layer
         self.Layer2 = nn.Sequential(nn.BatchNorm1d(self.hidden_dim),nn.Linear(self.hidden_dim, self.hidden_dim2), nn.ReLU())
-        self.Layer3 = nn.Sequential(nn.BatchNorm1d(self.hidden_dim2),nn.Linear(self.hidden_dim2, self.hidden_dim3), nn.ReLU())
-        self.Layer4 = nn.Sequential(nn.BatchNorm1d(self.hidden_dim3),nn.Linear(self.hidden_dim3, self.output_dim), nn.Softmax())
+        self.Layer3 = nn.Sequential(nn.BatchNorm1d(self.hidden_dim2),nn.Linear(self.hidden_dim2, self.output_dim), nn.Softmax())
+        
         # self.Layer4 = nn.Sequential(nn.LayerNorm(self.hidden_dim3),nn.Linear(self.hidden_dim3, self.output_dim), nn.Softmax())
 
     def forward(self, x):
@@ -38,7 +38,7 @@ class SingleNet(nn.Module):
         x = self.Layer1(x)
         x = self.Layer2(x)
         x = self.Layer3(x)
-        x = self.Layer4(x)
+        # x = self.Layer4(x)
 
         # self.x_kb = self.knob_fc(x)
         # self.
