@@ -6,11 +6,14 @@ This is the code of the KCC 2023 paper
 This study proposes a method to reduce the search space as an optimization method that can improve the performance of database parameters (knobs).
 
 ---
-MySQL ver. 5.7
-Num of Parameters = 139
-Num of Config = 200
-Workload : TPCC , Twitter
----
+- MySQL ver. 5.7
+
+- Num of Parameters = 139
+
+- Num of Config = 200
+
+- Workload : TPCC , Twitter
+
 Firstly, we randomly generate 200 samples via Latin Hypercube Sampling (LHS). 
 Secondly, we select 10  knobs that have a significant impact on database performance by a knob ranking algorithm. 
 Thirdly, 10  configurations within the generated samples are  selected based on their measured database performance, where we calculated score (throughput/latency) to compare multiple configurations. 
