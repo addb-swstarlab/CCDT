@@ -1,6 +1,6 @@
 ### 2023_KCC Model
 
-This is the code of the KCC 2023 paper 
+This is the code of the **Korea Computer Congress 2023** (KCC 2023) paper 
 
 **'A Study about Search Space of Knob Range Reduction for Database Tuning'.**
 
