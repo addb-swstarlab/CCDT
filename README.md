@@ -1,6 +1,7 @@
 ### 2023_KCC Model
 
 This is the code of the KCC 2023 paper 
+
 **'A Study about Search Space of Knob Range Reduction for Database Tuning'.**
 
 This study proposes a method to reduce the search space as an optimization method that can improve the performance of database parameters (knobs).
