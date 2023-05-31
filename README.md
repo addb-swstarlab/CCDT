@@ -7,8 +7,8 @@ This study proposes a method to reduce the search space as an optimization metho
 
 ---
 MySQL ver. 5.7
-# of Parameters = 139
-# of Config = 200
+Num of Parameters = 139
+Num of Config = 200
 Workload : TPCC , Twitter
 ---
 Firstly, we randomly generate 200 samples via Latin Hypercube Sampling (LHS). 
