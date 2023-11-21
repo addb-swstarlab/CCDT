@@ -27,5 +27,5 @@ Then, we find the used **value range of  each selected knob from the selected co
 With these newly defined knob ranges, the optimization  algorithm can search knob values within a narrower range than its default range.
 
 ## Paper
-Below is link of OANet paper\
+Below is link of 'A Study about Search Space of Knob Range Reduction for Database Tuning' paper\
 [Paper link](https://www.dbpia.co.kr/pdf/pdfView.do?nodeId=NODE11487958)
